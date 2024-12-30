@@ -1,0 +1,80 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
+
+func startRepl() {
+	scanner := bufio.NewScanner(os.Stdin)
+	firsturl := "https://pokeapi.co/api/v2/location-area/"
+	cfg := Config{
+		Next:     firsturl,
+		Previous: "",
+	}
+	for {
+		fmt.Print("Pokedex > ")
+		scanner.Scan()
+		input := scanner.Text()
+		if len(input) == 0 {
+			continue
+		}
+		clninput := cleanInput(input)
+		commands := getCommand()
+		if cmd, ok := commands[clninput[0]]; ok {
+			err := cmd.callback(&cfg)
+			if err != nil {
+				fmt.Println("Unknown Error")
+			}
+			continue
+		} else {
+			fmt.Println("Unkown command")
+			continue
+		}
+	}
+
+}
+
+func cleanInput(text string) []string {
+	lowertext := strings.ToLower(text)
+	return strings.Fields(lowertext)
+
+}
+
+type Config struct {
+	Next     string
+	Previous string
+}
+
+type cliCommand struct {
+	name        string
+	description string
+	callback    func(cfg *Config) error
+}
+
+func getCommand() map[string]cliCommand {
+	return map[string]cliCommand{
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"map": {
+			name:        "map",
+			description: "Displays 20 areas",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays previous 20 areas",
+			callback:    commandMapb,
+		},
+	}
+}
