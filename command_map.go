@@ -7,7 +7,7 @@ import (
 )
 
 func commandMap(cfg *Config) error {
-	areas, err := internal.FetchAreas(cfg.Next)
+	areas, err := internal.FetchAreas(cfg.Next, cfg.cache)
 	if err != nil {
 		return fmt.Errorf("error fetching areas: %w", err)
 	}
@@ -34,7 +34,7 @@ func commandMapb(cfg *Config) error {
 	if cfg.Previous == "" {
 		fmt.Println("you're on the first page")
 	} else {
-		areas, err := internal.FetchAreas(cfg.Previous)
+		areas, err := internal.FetchAreas(cfg.Previous, cfg.cache)
 		if err != nil {
 			return fmt.Errorf("error fetching areas: %w", err)
 		}

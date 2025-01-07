@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
+
+	pokecache "github.com/NickLiu-0717/pokedexcli/internal/pokecache"
 )
 
 func startRepl() {
 	scanner := bufio.NewScanner(os.Stdin)
-	firsturl := "https://pokeapi.co/api/v2/location-area/"
-	cfg := Config{
-		Next:     firsturl,
-		Previous: "",
-	}
+	cfg := NewConfig()
 	for {
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
@@ -24,7 +23,7 @@ func startRepl() {
 		clninput := cleanInput(input)
 		commands := getCommand()
 		if cmd, ok := commands[clninput[0]]; ok {
-			err := cmd.callback(&cfg)
+			err := cmd.callback(cfg)
 			if err != nil {
 				fmt.Println("Unknown Error")
 			}
@@ -43,9 +42,18 @@ func cleanInput(text string) []string {
 
 }
 
+func NewConfig() *Config {
+	return &Config{
+		Next:     "https://pokeapi.co/api/v2/location-area/",
+		Previous: "",
+		cache:    pokecache.NewCache(5 * time.Second),
+	}
+}
+
 type Config struct {
 	Next     string
 	Previous string
+	cache    *pokecache.Cache
 }
 
 type cliCommand struct {
